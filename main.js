@@ -1,7 +1,16 @@
 function Validator(options) {
+    let selectorRules = {};
     function validate(inputElement, rule) {
         let errorElement = inputElement.parentElement.querySelector(options.errolSelector);
-        let errorMessage = rule.test(inputElement.value);
+        let errorMessage;
+        //Get rules of selector
+        let rules = selectorRules[rule.selector];
+        //Loop through each rule and check
+        //If have exception then break
+        for (let i = 0; i < rules.length; i++) {
+            errorMessage = rules[i](inputElement.value);
+            if (errorMessage) { break; }
+        }
         if (errorMessage) {
             errorElement.innerText = errorMessage;
             errorElement.parentElement.classList.add('invalid');
@@ -13,7 +22,14 @@ function Validator(options) {
     //Get element form need validate
     let formElement = document.querySelector(options.form);
     if (formElement) {
+        //Handle loop each rule and handle listen event
         options.rules.forEach(function (rule) {
+            //Save rules for each input
+            if (Array.isArray(selectorRules[rule.selector])) {
+                selectorRules[rule.selector].push(rule.test);
+            } else {
+                selectorRules[rule.selector] = [rule.test];
+            }
             let inputElement = formElement.querySelector(rule.selector);
             if (inputElement) {
                 //Handle blur out input
