@@ -45,12 +45,12 @@
         form: '#form-1',
         errolSelector: '.form-message',
         rules: [
-            Validator.isRequired('#fullname'),
+            Validator.isRequired('#fullname', 'Vui long nhap day du ten cua ban'),
             Validator.isEmail('#email'),
-            Validator.minLength('#password', 5),
+            Validator.minLength('#password', 6),
             Validator.isComfirmed('#password_confirmation', function () {
                 return document.querySelector('#form-1 #password').value;
-            },'Gia tri nhap lai khong chinh xac')
+            }, 'Gia tri nhap lai khong chinh xac')
         ]
     });
 </script>
