@@ -1,7 +1,16 @@
 function Validator(options) {
+    function getParent(element, selector) {
+        while (element.parentElement) {
+            if (element.parentElement.matches(selector)) {
+                return element.parentElement;
+            }
+            element = element.parentElement;
+        }
+    }
     let selectorRules = {};
     function validate(inputElement, rule) {
-        let errorElement = inputElement.parentElement.querySelector(options.errolSelector);
+        // let errorElement = getParent(inputElement, '.form-group');
+        let errorElement = getParent(inputElement, options.formGroupSelector).querySelector(options.errolSelector);
         let errorMessage;
         //Get rules of selector
         let rules = selectorRules[rule.selector];
@@ -13,10 +22,10 @@ function Validator(options) {
         }
         if (errorMessage) {
             errorElement.innerText = errorMessage;
-            errorElement.parentElement.classList.add('invalid');
+            getParent(inputElement, options.formGroupSelector).classList.add('invalid');
         } else {
             errorElement.innerText = '';
-            errorElement.parentElement.classList.remove('invalid');
+            getParent(inputElement, options.formGroupSelector).classList.remove('invalid');
         }
         return !errorMessage;
     }
@@ -38,12 +47,13 @@ function Validator(options) {
                 if (typeof options.onSubmit === 'function') {
                     let enableInputs = formElement.querySelectorAll('[name]');
                     let formValues = Array.from(enableInputs).reduce(function (values, input) {
-                        return (values[input.name] = input.value) && values;
+                        values[input.name] = input.value;
+                        return values;
                     }, {});
                     options.onSubmit(formValues);
                 }
                 //case submit with behavior default
-                 else {
+                else {
                     formElement.submit();
                 }
             }
@@ -64,9 +74,9 @@ function Validator(options) {
                 }
                 //Handle case when user input
                 inputElement.oninput = function () {
-                    let errorElement = inputElement.parentElement.querySelector(options.errolSelector);
+                    let errorElement = getParent(inputElement, options.formGroupSelector).querySelector(options.errolSelector);
                     errorElement.innerText = '';
-                    errorElement.parentElement.classList.remove('invalid');
+                    getParent(inputElement, options.formGroupSelector).classList.remove('invalid');
                 }
             }
         })
@@ -97,11 +107,11 @@ Validator.minLength = function (selector, min, message) {
         }
     };
 }
-Validator.isComfirmed = function (selector, getCofirmValue, message) {
+Validator.isComfirmed = function (selector, getConfirmValue, message) {
     return {
         selector: selector,
         test: function (value) {
-            return value === getCofirmValue() ? undefined : message || 'Nhap khong chinh xac';
+            return value === getConfirmValue() ? undefined : message || 'Nhap khong chinh xac';
         }
     }
 }
