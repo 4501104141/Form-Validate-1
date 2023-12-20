@@ -18,10 +18,36 @@ function Validator(options) {
             errorElement.innerText = '';
             errorElement.parentElement.classList.remove('invalid');
         }
+        return !errorMessage;
     }
     //Get element form need validate
     let formElement = document.querySelector(options.form);
     if (formElement) {
+        //When submit form 
+        formElement.onsubmit = function (e) {
+            e.preventDefault();
+            let isFormValid = true;
+            //Loop each rule and validate
+            options.rules.forEach(function (rule) {
+                let inputElement = formElement.querySelector(rule.selector);
+                let isValid = validate(inputElement, rule);
+                if (!isValid) { isFormValid = false; }
+            });
+            if (isFormValid) {
+                //case submit with js
+                if (typeof options.onSubmit === 'function') {
+                    let enableInputs = formElement.querySelectorAll('[name]');
+                    let formValues = Array.from(enableInputs).reduce(function (values, input) {
+                        return (values[input.name] = input.value) && values;
+                    }, {});
+                    options.onSubmit(formValues);
+                }
+                //case submit with behavior default
+                 else {
+                    formElement.submit();
+                }
+            }
+        }
         //Handle loop each rule and handle listen event
         options.rules.forEach(function (rule) {
             //Save rules for each input
